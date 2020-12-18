@@ -42,3 +42,198 @@ default_evaluation_functions = [
 ]
 
 sort!(default_evaluation_functions, by = x -> string(x))
+
+"""
+default models for evaluation
+"""
+
+default_models = [
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_hacker_news,
+            :init_score => 50,
+            :vote_evaluation => vote_difference,
+            :deviation_function => no_deviation,
+            :gravity => 0,
+            :relevance_gravity => 0,
+            :user_opinion_function => consensus,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_hacker_news,
+            :init_score => 50,
+            :vote_evaluation => vote_difference,
+            :deviation_function => mean_deviation,
+            :gravity => 2,
+            :relevance_gravity => 2,
+            :user_opinion_function => consensus,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_hacker_news,
+            :init_score => 50,
+            :vote_evaluation => vote_difference,
+            :deviation_function => mean_deviation,
+            :gravity => 2,
+            :relevance_gravity => 0,
+            :user_opinion_function => dissent,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_hacker_news,
+            :init_score => 50,
+            :vote_evaluation => vote_difference,
+            :deviation_function => mean_deviation,
+            :gravity => 2,
+            :relevance_gravity => 2,
+            :user_opinion_function => dissent,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_view,
+            :init_score => 20,
+            :vote_evaluation => vote_difference,
+            :deviation_function => mean_deviation,
+            :gravity => 0,
+            :relevance_gravity => 0,
+            :user_opinion_function => consensus,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_view,
+            :init_score => 30,
+            :vote_evaluation => vote_wilson,
+            :deviation_function => mean_deviation,
+            :gravity => 2,
+            :relevance_gravity => 2,
+            :user_opinion_function => consensus,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_view,
+            :init_score => 30,
+            :vote_evaluation => vote_wilson,
+            :deviation_function => mean_deviation,
+            :gravity => 2,
+            :relevance_gravity => 0,
+            :user_opinion_function => dissent,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_view,
+            :init_score => 30,
+            :vote_evaluation => vote_wilson,
+            :deviation_function => mean_deviation,
+            :gravity => 2,
+            :relevance_gravity => 2,
+            :user_opinion_function => dissent,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_activation,
+            :init_score => 10,
+            :vote_evaluation => vote_difference,
+            :deviation_function => no_deviation,
+            :gravity => 2,
+            :relevance_gravity => 0,
+            :user_opinion_function => consensus,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_activation,
+            :init_score => 30,
+            :vote_evaluation => vote_difference,
+            :deviation_function => mean_deviation,
+            :gravity => 2,
+            :relevance_gravity => 2,
+            :user_opinion_function => consensus,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_activation,
+            :init_score => 30,
+            :vote_evaluation => vote_difference,
+            :deviation_function => mean_deviation,
+            :gravity => 2,
+            :relevance_gravity => 0,
+            :user_opinion_function => dissent,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_activation,
+            :init_score => 30,
+            :vote_evaluation => vote_difference,
+            :deviation_function => mean_deviation,
+            :gravity => 2,
+            :relevance_gravity => 2,
+            :user_opinion_function => dissent,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_reddit_hot,
+            :init_score => 30000,
+            :vote_evaluation => vote_difference,
+            :deviation_function => no_deviation,
+            :relevance_gravity => 0,
+            :user_opinion_function => consensus,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_reddit_hot,
+            :init_score => 30000,
+            :vote_evaluation => vote_difference,
+            :deviation_function => mean_deviation,
+            :relevance_gravity => 2,
+            :user_opinion_function => consensus,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_reddit_hot,
+            :init_score => 30000,
+            :vote_evaluation => vote_difference,
+            :deviation_function => mean_deviation,
+            :relevance_gravity => 0,
+            :user_opinion_function => dissent,
+        ),
+    ),
+    (
+        up_and_downvote_system,
+        Dict(
+            :rating_metric => metric_reddit_hot,
+            :init_score => 30000,
+            :vote_evaluation => vote_difference,
+            :deviation_function => mean_deviation,
+            :relevance_gravity => 2,
+            :user_opinion_function => dissent,
+        )
+    )
+]
