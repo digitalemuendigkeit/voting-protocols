@@ -12,7 +12,7 @@ This function supports multiprocessing
 function export_data(model_init_params, name;
     model_properties = default_model_properties,
     evaluation_functions = default_evaluation_functions,
-    iterations = 45,
+    iterations = 20,
     pack = 1)
     @time begin
     @sync @distributed for i=1:iterations
@@ -37,17 +37,18 @@ exports dataframes to .rds format
 function export_rds(df, model_dfs, keyword = "")
 
     no = rand(1:2147483647)
+    mkpath("data")
+    time_str = Dates.format(Dates.now(), "dd_mm_yyyy_HMSs")
 
+    commit_str = read(`git rev-parse HEAD`, String)[1:7]
 
-    if keyword == ""
-        df_file = "data/df$(no).rds"
-        model_dfs_file = "data/model_dfs$(no).rds"
-    else
-        df_file = "data/df_$(keyword)_$(no).rds"
-        model_dfs_=ile = "data/model_dfs_$(keyword)_$(no).rds"
+    if !isempty(keyword)
+        keyword = "$(keyword)_"
     end
 
+    file_name = "$(keyword)_$(commit_str)_$(time_str).rds"
 
+    df_file = joinpath("data",file_name)
 
     R"""
     saveRDS($(robject(df)), file = $df_file)
