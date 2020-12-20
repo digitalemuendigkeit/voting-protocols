@@ -46,7 +46,7 @@ function export_rds(df, model_dfs, keyword = "")
         keyword = "$(keyword)_"
     end
 
-    file_name = "$(keyword)_$(commit_str)_$(time_str).rds"
+    file_name = "$(keyword)$(commit_str)_$(time_str).rds"
 
     df_file = joinpath("data",file_name)
 
