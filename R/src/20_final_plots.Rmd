@@ -1,26 +1,23 @@
----
-title: "final_plots"
-author: "Pupso"
-date: "8/3/2020"
-output: html_document
----
 ```{r}
 s = TRUE
 ```
 ```{r}
 source("util.r")
 source("load_dfs.R")
+
+dir.create(here::here("plots"), showWarnings = FALSE)
 ```
+
 
 ```{r}
 grouped_full_model %>%
-  #filter(scoring_function == "scoring_activation") %>% 
+  #filter(rating_metric == "scoring_activation") %>% 
   mutate(gravity = factor(gravity)) %>% 
   ggplot_scatter() + 
   theme(legend.position = "left") +
   #theme(legend.key.size = unit(1, "cm")) + 
   scale_color_discrete(labels = c(downvote_model = 2,standard_model=1)) + 
-  aes(x = area_under_gini, y = area_under_ndcg, size = posts_with_no_views,color = scoring_function, group = model_type) + 
+  aes(x = area_under_gini, y = area_under_ndcg, size = posts_with_no_views,color = rating_metric, group = model_type) + 
   labs(color = "Bewertungsmetrik") +
   labs(x = "T(G)", y = "T(nDCG)", size = expression(P["v=0"])) +
   scale_x_continuous(breaks =c(0.3,0.5,0.7)) + 
@@ -29,10 +26,10 @@ grouped_full_model %>%
   #geom_point(aes(size = 1.5*ρ), color = "grey20") + 
   geom_point(alpha = 0.5) +
   #geom_smooth(method = "lm") + 
-  facet_grid(relevance_gravity~user_rating_function)
+  facet_grid(relevance_gravity~user_opinion_function)
 if(s)
 {
- ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/full_model_grouped_scatter.png",plot = last_plot(), device = "png")
+ ggsave(here::here("plots","full_model_grouped_scatter.png"),plot = last_plot(), device = "png")
 }
 ```
 
@@ -40,19 +37,19 @@ if(s)
 
 ```{r}
 df_diss_2 = df_full_model %>% 
-  filter(user_rating_function == "Dissens") %>% 
+  filter(user_opinion_function == "Dissens") %>% 
   filter(relevance_gravity == "News")
 
 df_kons_2 = df_full_model %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   filter(relevance_gravity == "News")
 
 df_diss_0 = df_full_model %>% 
-  filter(user_rating_function == "Dissens") %>% 
+  filter(user_opinion_function == "Dissens") %>% 
   filter(relevance_gravity == "Q&A")
 
 df_kons_0 = df_full_model %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   filter(relevance_gravity == "Q&A")
 
 
@@ -63,7 +60,7 @@ ggcorrplot(cor(corr_full_model, method = "spearman"), ggtheme = theme(text=eleme
 
 if(s)
 {
-ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/full_model_grouped_corr.png", plot = last_plot(), device = "png")
+ggsave(here::here("plots","full_model_grouped_corr.png"), plot = last_plot(), device = "png")
 }
 ```
 
@@ -77,8 +74,8 @@ ann_text<-data.frame(x = 0.31, y = 0.65,
                      relevance_gravity=factor("News",levels=c("Q&A", "News")))
 
 grouped_full_model %>% 
-  filter(user_rating_function == "Konsens") %>% 
-  #filter(scoring_function %in% c("Veralg. Hacker News", "Aktivität")) %>% 
+  filter(user_opinion_function == "Konsens") %>% 
+  #filter(rating_metric %in% c("Veralg. Hacker News", "Aktivität")) %>% 
   #filter(gravity == 2) %>% 
  # filter(init_score == 70) %>% 
   #filter(deviation_function == "μ") %>% 
@@ -93,15 +90,15 @@ grouped_full_model %>%
   facet_wrap(~relevance_gravity)
 if(s)
 {
-ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/bewertungsvektor_all.png", plot = last_plot(), device = "png")
+ggsave(here::here("plots","bewertungsvektor_all.png"), plot = last_plot(), device = "png")
 }
 ```
 
 ```{r}
 df_full_model %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   ggplot_cus() + 
-  aes(fill = scoring_function, x = init_score, y = ρ) +
+  aes(fill = rating_metric, x = init_score, y = ρ) +
   labs(x = "Initialscore", fill = "Bewertungsmetrik") + 
   #scale_x_discrete(labels = c("Aktitvität", "Reddit Hot", "Veralg. HN", "View")) + 
   geom_boxplot() + 
@@ -109,43 +106,43 @@ df_full_model %>%
 
 if(s)
 {
-ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/init_score_boxplot.png", device = "png")
+ggsave(here::here("plots","init_score_boxplot.png"), device = "png")
 }
 ```
 ```{r}
 init_hack = df_init %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   mutate(init_score = factor(init_score)) %>% 
   filter(gravity == 0) %>%
   filter(relevance_gravity == "Q&A") %>% 
-  filter(scoring_function %in% c("Verallg. Hacker News")) %>% 
+  filter(rating_metric %in% c("Verallg. Hacker News")) %>% 
   filter(vote_evaluation == "Differenz") %>% 
  filter(deviation_function == "0")
 
 init_akt = df_init %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   mutate(init_score = factor(init_score)) %>% 
   filter(gravity == 2) %>%
   filter(relevance_gravity == "Q&A") %>% 
   filter(vote_evaluation == "Differenz") %>% 
-  filter(scoring_function %in% c("Aktivität")) %>% 
+  filter(rating_metric %in% c("Aktivität")) %>% 
  filter(deviation_function == "0")
 
 init_view = df_init %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   mutate(init_score = factor(init_score)) %>% 
   filter(gravity == 0) %>%
   filter(relevance_gravity == "Q&A") %>% 
-  filter(scoring_function %in% c("View")) %>% 
+  filter(rating_metric %in% c("View")) %>% 
  filter(deviation_function == "μ") %>% 
   filter(vote_evaluation == "Differenz") 
 
 init_reddit = df_init %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   mutate(init_score = factor(init_score)) %>% 
   #filter(gravity == 0) %>%
   filter(relevance_gravity == "Q&A") %>% 
-  filter(scoring_function %in% c("Reddit Hot")) %>% 
+  filter(rating_metric %in% c("Reddit Hot")) %>% 
  filter(deviation_function == "μ") %>% 
   filter(vote_evaluation == "Differenz")
 
@@ -168,15 +165,15 @@ min_post = min(min(init_hack$posts_with_no_views), min(init_view$posts_with_no_v
 
 ```{r}
 help_tib = df_init %>% 
-  mutate(scoring_function = "Verallg. Hacker News")
+  mutate(rating_metric = "Verallg. Hacker News")
 
 #relevance gravity = 1.8
 df_init %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   mutate(init_score = factor(init_score)) %>% 
   filter(gravity == 0) %>%
   filter(relevance_gravity == "Q&A") %>% 
-  filter(scoring_function %in% c("Verallg. Hacker News")) %>% 
+  filter(rating_metric %in% c("Verallg. Hacker News")) %>% 
   filter(vote_evaluation == "Differenz") %>% 
  filter(deviation_function == "0") %>% 
   ggplot_cus() +
@@ -190,30 +187,30 @@ df_init %>%
   geom_point(alpha =0, data = help_tib, aes(color = init_score), show.legend =  TRUE) + 
   geom_point(alpha = 0.6) + 
   #geom_line(alpha = 0.4) +
-  facet_grid(~scoring_function)
+  facet_grid(~rating_metric)
 
   #HACKER NEWS
   # bei gravity != 0 bei init_score >= 10 hat init_score keinen einfluss mehr
   # bei gravity != 0 ist deviation besser bezogen auf gini, etwas schlechter im ndcg
 if(s)
 {
-  ggsave(filename = "/home/ludwig/Bachelorarbeit/voting-protocols/plots/init_hn.png", device = "png",plot = last_plot())
+  ggsave(filename = here::here("plots","init_hn.png"), device = "png",plot = last_plot())
 }
 ```
 
 ```{r}
 
 help_tib = df_init %>% 
-  mutate(scoring_function = "Aktivität")
+  mutate(rating_metric = "Aktivität")
 
 #relevance gravity = 1.8
 df_init %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   mutate(init_score = factor(init_score)) %>% 
   filter(gravity == 2) %>%
   filter(relevance_gravity == "Q&A") %>% 
   filter(vote_evaluation == "Differenz") %>% 
-  filter(scoring_function %in% c("Aktivität")) %>% 
+  filter(rating_metric %in% c("Aktivität")) %>% 
  filter(deviation_function == "0") %>% 
   ggplot_cus() +
   theme(legend.position = c(0.95,0.02), legend.justification = c(1,0), legend.key.size = unit(0.9, "line")) + 
@@ -229,29 +226,29 @@ df_init %>%
   
 
   #geom_line(alpha = 0.4) +
-  facet_grid(~scoring_function)
+  facet_grid(~rating_metric)
 
   #HACKER NEWS
   # bei gravity != 0 bei init_score >= 10 hat init_score keinen einfluss mehr
   # bei gravity != 0 ist deviation besser bezogen auf gini, etwas schlechter im ndcg
 if(s)
 {
-  ggsave(filename = "/home/ludwig/Bachelorarbeit/voting-protocols/plots/init_akt.png", device = "png",plot = last_plot())
+  ggsave(filename = here::here("plots","init_akt.png"), device = "png",plot = last_plot())
 }
 ```
 
 ```{r}
 
 help_tib = df_init %>% 
-  mutate(scoring_function = "View")
+  mutate(rating_metric = "View")
 
 #relevance gravity = 1.8
 df_init %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   mutate(init_score = factor(init_score)) %>% 
   filter(gravity == 0) %>%
   filter(relevance_gravity == "Q&A") %>% 
-  filter(scoring_function %in% c("View")) %>% 
+  filter(rating_metric %in% c("View")) %>% 
  filter(deviation_function == "μ") %>% 
   filter(vote_evaluation == "Differenz") %>% 
   ggplot_cus() +
@@ -266,27 +263,27 @@ labs(x = "T(G)", y = "T(nDCG)", size = expression(P["v=0"])) +
   geom_point(alpha = 0.6) + 
 
   #geom_line(alpha = 0.4) +
-  facet_grid(~scoring_function)
+  facet_grid(~rating_metric)
 
   #HACKER NEWS
   # bei gravity != 0 bei init_score >= 10 hat init_score keinen einfluss mehr
   # bei gravity != 0 ist deviation besser bezogen auf gini, etwas schlechter im ndcg
 if(s)
 {
-  ggsave(filename = "/home/ludwig/Bachelorarbeit/voting-protocols/plots/init_view.png", device = "png",plot = last_plot())
+  ggsave(filename = here::here("plots","init_view.png"), device = "png",plot = last_plot())
 }
 ```
 ```{r}
 help_tib = df_init %>% 
-  mutate(scoring_function = "Reddit Hot")
+  mutate(rating_metric = "Reddit Hot")
 
 #relevance gravity = 1.8
 df_init %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   mutate(init_score = factor(init_score)) %>% 
   #filter(gravity == 0) %>%
   filter(relevance_gravity == "Q&A") %>% 
-  filter(scoring_function %in% c("Reddit Hot")) %>% 
+  filter(rating_metric %in% c("Reddit Hot")) %>% 
  filter(deviation_function == "μ") %>% 
   filter(vote_evaluation == "Differenz") %>% 
   ggplot_cus() +
@@ -300,21 +297,21 @@ df_init %>%
   geom_point(alpha = 0.6) + 
 
   #geom_line(alpha = 0.4) +
-  facet_grid(~scoring_function)
+  facet_grid(~rating_metric)
 
   #HACKER NEWS
   # bei gravity != 0 bei init_score >= 10 hat init_score keinen einfluss mehr
   # bei gravity != 0 ist deviation besser bezogen auf gini, etwas schlechter im ndcg
 if(s)
 {
-  ggsave(filename = "/home/ludwig/Bachelorarbeit/voting-protocols/plots/init_reddit.png", device = "png",plot = last_plot())
+  ggsave(filename = here::here("plots","init_reddit.png"), device = "png",plot = last_plot())
 }
 ```
 
 ```{r}
 
 grouped_full_model %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   ggplot_cus() + 
   aes(x = area_under_gini, y = area_under_ndcg, size = posts_with_no_views, color = vote_evaluation) +
   labs(x = "T(G)", y = "T(nDCG)", size = expression(P["v=0"]), color = "Bewertungs-\ntransformation") +
@@ -324,7 +321,7 @@ grouped_full_model %>%
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/vote_eval_scatter.png", device = "png")
+  ggsave(here::here("plots","vote_eval_scatter.png"), device = "png")
 }
   
 ```
@@ -333,11 +330,11 @@ if(s)
 ```{r}
 
 grouped_full_model %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   #filter(relevance_gravity == 2) %>% 
   filter(init_score != 0) %>% 
   ggplot_cus() + 
-  aes(y = ρ, fill = vote_evaluation,x = scoring_function)  + 
+  aes(y = ρ, fill = vote_evaluation,x = rating_metric)  + 
   scale_x_discrete(labels = c("Aktivität", "RH", "VHN", "View")) + 
   theme(legend.position = "right") +
   labs(x = "Bewertungstransformation", fill = "Bewertungsmetrik") + 
@@ -347,15 +344,15 @@ grouped_full_model %>%
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/vote_eval_boxplot.png", device = "png")
+  ggsave(here::here("plots","vote_eval_boxplot.png"), device = "png")
 }
 ```
 
 ```{r}
 df_deviation %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   ggplot_cus() +
-  aes(x = deviation_function,fill = scoring_function,y = area_under_gini) + 
+  aes(x = deviation_function,fill = rating_metric,y = area_under_gini) + 
   labs(x = "Zufallsabweichung", y = "T(G)", fill = "Bewertungsmetrik") +
 
  # theme(axis.text.x=element_blank(),axis.ticks.x=element_blank(),) +
@@ -365,18 +362,18 @@ df_deviation %>%
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/dev_gini.png")
+  ggsave(here::here("plots","dev_gini.png"))
 }
 
 ```
 ```{r}
 df_deviation %>% 
  # filter(steps <= 100) %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   #filter(relevance_gravity == 0) %>% 
   #mutate(steps = factor(steps)) %>% 
   ggplot_cus() +
-  aes(x = deviation_function,fill = scoring_function,y = posts_with_no_views  ) +
+  aes(x = deviation_function,fill = rating_metric,y = posts_with_no_views  ) +
   theme(legend.position =  "none") +
   labs(y = expression(P["v=0"]), x = "Zufallsabweichung") + 
   geom_boxplot() + 
@@ -384,7 +381,7 @@ df_deviation %>%
   facet_grid(~relevance_gravity)
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/dev_pwnv.png")
+  ggsave(here::here("plots","dev_pwnv.png"))
 }
 
 
@@ -392,11 +389,11 @@ if(s)
 ```{r}
 df_deviation %>% 
  # filter(steps <= 100) %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   #filter(relevance_gravity == 0) %>% 
   #mutate(steps = factor(steps)) %>% 
   ggplot_cus() +
-  aes(x = deviation_function,fill = scoring_function,y = area_under_ndcg ) + 
+  aes(x = deviation_function,fill = rating_metric,y = area_under_ndcg ) + 
   theme(legend.position = "none") + 
   labs(x = "Zufallsabweichung", y = "T(nDCG)") + 
   geom_boxplot() +
@@ -405,7 +402,7 @@ df_deviation %>%
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/dev_ndcg.png")
+  ggsave(here::here("plots","dev_ndcg.png"))
 }
 
 
@@ -414,11 +411,11 @@ if(s)
 ```{r}
 df_deviation %>% 
  # filter(steps <= 100) %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   #filter(relevance_gravity == 0) %>% 
   #mutate(steps = factor(steps)) %>% 
   ggplot_cus() +
-  aes(x = deviation_function,fill = scoring_function,y = ρ ) + 
+  aes(x = deviation_function,fill = rating_metric,y = ρ ) + 
   theme(legend.position = "none") + 
   labs(x = "Zufallsabweichung", y = "ρ") + 
   geom_boxplot() +
@@ -427,19 +424,19 @@ df_deviation %>%
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/dev_ρ.png")
+  ggsave(here::here("plots","dev_ρ.png"))
 }
 
 
 ```
 ```{r}
 df_cus_steps <- df_steps %>% 
-  filter(user_rating_function == "Konsens")
+  filter(user_opinion_function == "Konsens")
 
-df_cus_steps$scoring_function = revalue(x = df_cus_steps$scoring_function, c("Verallg. Hacker News" = "Verallg. HN"))
+df_cus_steps$rating_metric = revalue(x = df_cus_steps$rating_metric, c("Verallg. Hacker News" = "Verallg. HN"))
 
 df_cus_steps %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   mutate(steps = factor(steps)) %>% 
   ggplot_cus() + 
   theme(legend.position = "left") + 
@@ -447,11 +444,11 @@ df_cus_steps %>%
   labs(x = "T(G)",color = "Iterationsschritte",size = expression(P["v=0"]), y = "T(nDCG)") + 
   geom_point(alpha = 0.5) + 
 #  geom_line() +
-  facet_grid(relevance_gravity~scoring_function) 
+  facet_grid(relevance_gravity~rating_metric) 
   
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/steps_scatter.png", device = "png")
+  ggsave(here::here("plots","steps_scatter.png"), device = "png")
 }
 ```
 
@@ -470,10 +467,10 @@ cor(step100$ρ, step500$ρ, method = "spearman")
 ```{r}
 df_steps %>% 
   mutate(steps = factor(steps)) %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   filter(relevance_gravity == "Q&A") %>% 
   ggplot_cus() +
-  aes(fill = scoring_function,y =  area_under_gini, x = steps) + 
+  aes(fill = rating_metric,y =  area_under_gini, x = steps) + 
   labs(x = "Iterationsschritte", y = "T(G)") + 
   theme(legend.position = "none") + 
   geom_boxplot()  + 
@@ -481,27 +478,27 @@ df_steps %>%
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/steps_gini.png", device = "png")
+  ggsave(here::here("plots","steps_gini.png"), device = "png")
 }
 ```
 
 ```{r}
 df_steps %>% 
  # filter(steps <= 100) %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   filter(relevance_gravity == "Q&A") %>% 
   mutate(quality_dimensions = factor(quality_dimensions)) %>% 
   mutate(steps = factor(steps)) %>% 
   ggplot_cus() +
   theme(legend.position = "none") + 
-  aes(fill = scoring_function,y =  area_under_ndcg, x = steps) + 
+  aes(fill = rating_metric,y =  area_under_ndcg, x = steps) + 
   labs(x = "Iterationsschritte", y = "T(nDCG)") + 
   geom_boxplot() + 
   facet_wrap(~relevance_gravity)
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/steps_ndcg.png", device = "png")
+  ggsave(here::here("plots","steps_ndcg.png"), device = "png")
 }
 ```
 
@@ -509,20 +506,20 @@ if(s)
 ```{r}
 df_steps %>% 
  # filter(steps <= 100) %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   filter(relevance_gravity == "Q&A") %>% 
   mutate(quality_dimensions = factor(quality_dimensions)) %>% 
   mutate(steps = factor(steps)) %>% 
   ggplot_cus() +
     theme(legend.position = "left") + 
-  aes(fill = scoring_function,y =  posts_with_no_views, x = steps) + 
+  aes(fill = rating_metric,y =  posts_with_no_views, x = steps) + 
   labs(x = "Iterationsschritte", y = expression(P["v=0"]), fill = "Bewertungsmetrik") + 
   geom_boxplot() + 
   facet_wrap(~relevance_gravity)
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/steps_pwnv.png", device = "png")
+  ggsave(here::here("plots","steps_pwnv.png"), device = "png")
 }
 
 ```
@@ -549,7 +546,7 @@ df_gravity %>%
   #mutate(gravity = factor(gravity)) %>% 
   ggplot_cus() + 
   labs(fill = "Bewertungsmetrik", x = "Gravität") + 
-  geom_boxplot(aes(fill = scoring_function, y = ρ,x= gravity)) + 
+  geom_boxplot(aes(fill = rating_metric, y = ρ,x= gravity)) + 
 #  geom_segment(data=ann_line, aes(xend=xend, yend=yend, x=x, y=y),
  #   arrow = arrow(length = unit(2, "mm"))) +
   geom_text(data=ann_text, aes(x=x, y=y), hjust = "left",label = "a) Für die Aktivitätsmetrik\nist γ=0 eine schlechte Wahl", family = "Serif", size = 3.5) + 
@@ -559,7 +556,7 @@ df_gravity %>%
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/gravity_box.png", device = "png")
+  ggsave(here::here("plots","gravity_box.png"), device = "png")
 }
 ```
 
@@ -567,9 +564,9 @@ if(s)
 ```{r}
 df_dims %>% 
   mutate(init_score = factor(init_score)) %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   ggplot_cus() +
-  aes(x = area_under_gini, y = area_under_ndcg, color = quality_dimensions,size= posts_with_no_views,group= seed) + # , color = vote_count, shape = user_rating_function, fill = init_score) + 
+  aes(x = area_under_gini, y = area_under_ndcg, color = quality_dimensions,size= posts_with_no_views,group= seed) + # , color = vote_count, shape = user_opinion_function, fill = init_score) + 
   labs(x = "T(G)", y = "T(nDCG)", size = expression(P["v=0"]), color = expression(Q[N])) + 
   theme(legend.position = "left") + 
   geom_point(alpha = 0.6) + 
@@ -579,23 +576,23 @@ df_dims %>%
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/dim_scatter.png", device = "png")
+  ggsave(here::here("plots","dim_scatter.png"), device = "png")
 }
 ```
 ```{r}
 df_dims %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   filter(relevance_gravity == "Q&A") %>% 
   ggplot_cus() + 
   theme(legend.position = "right") + 
-  aes(x = quality_dimensions, fill = scoring_function, y = ρ) + 
+  aes(x = quality_dimensions, fill = rating_metric, y = ρ) + 
   labs(x = expression(N[Q]), fill= "Bewertungsmetrik") + 
   geom_boxplot() + 
   facet_wrap(~relevance_gravity)
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/dims_box.png", device = "png")
+  ggsave(here::here("plots","dims_box.png"), device = "png")
 }
  
 ```
@@ -603,26 +600,26 @@ if(s)
 
 ```{r}
 df_userprob_cus = df_userprob %>% 
-  filter(user_rating_function == "Konsens")
+  filter(user_opinion_function == "Konsens")
 
-df_userprob_cus$scoring_function = revalue(x=df_userprob_cus$scoring_function, c("Verallg. Hacker News" = "Verallg. HN"))
+df_userprob_cus$rating_metric = revalue(x=df_userprob_cus$rating_metric, c("Verallg. Hacker News" = "Verallg. HN"))
 
 df_userprob_cus %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   mutate(init_score = factor(init_score)) %>% 
   #filter(voting_probability_distribution != "Beta(1,5)") %>% 
   ggplot_cus() +
-  aes(x = area_under_gini, y = area_under_ndcg, color = voting_probability_distribution,size= posts_with_no_views,shape = activity_distribution,  group= seed) + # , color = vote_count, shape = user_rating_function, fill = init_score) + 
+  aes(x = area_under_gini, y = area_under_ndcg, color = voting_probability_distribution,size= posts_with_no_views,shape = activity_distribution,  group= seed) + # , color = vote_count, shape = user_opinion_function, fill = init_score) + 
   labs(x = "T(G)", y = "T(nDCG)", size = expression(P["v=0"]),color = "Verteilung\nder Bewertungs-\nzufriedenheit", shape = "Verteilung\nder Aktivtität") + 
   theme(legend.position =  "left", legend.key.size = unit(14.5, "pt")) + 
   geom_point(alpha = 0.6) + 
   #geom_line(alpha = 0.7) +
-  facet_grid(relevance_gravity~scoring_function)
+  facet_grid(relevance_gravity~rating_metric)
 
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/vote_prob_scatter.png", device= "png")
+  ggsave(here::here("plots","vote_prob_scatter.png"), device= "png")
 }
 ```
 
@@ -655,7 +652,7 @@ tib_beta %>%
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/vote_prob_dists.png", device= "png")
+  ggsave(here::here("plots","vote_prob_dists.png"), device= "png")
 }
 
   
@@ -665,10 +662,10 @@ if(s)
 ```{r}
 df_start_posts %>% 
   mutate(init_score = factor(init_score)) %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   mutate(start_posts = factor(start_posts)) %>% 
   ggplot_cus() +
-  aes(x = area_under_gini, y = area_under_ndcg, color = start_posts, group= interaction(seed,gravity, init_score, vote_evaluation, scoring_function), size = posts_with_no_views) +
+  aes(x = area_under_gini, y = area_under_ndcg, color = start_posts, group= interaction(seed,gravity, init_score, vote_evaluation, rating_metric), size = posts_with_no_views) +
   labs(x = "T(G)", y = "T(nDCG)", size = expression(P["v=0"]), color = "Anzahl\nStartposts") + 
   theme(legend.position = "left") + 
   geom_point(alpha = 0.6) +
@@ -678,7 +675,7 @@ df_start_posts %>%
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/start_posts_scatter.png", device = "png")
+  ggsave(here::here("plots","start_posts_scatter.png"), device = "png")
 }
 ```
 ```{r}
@@ -695,17 +692,17 @@ cor(tib, method ="spearman")
 ```{r}
 df_start_posts %>% 
   mutate(init_score = factor(init_score)) %>% 
-  filter(user_rating_function == "Konsens") %>% 
+  filter(user_opinion_function == "Konsens") %>% 
   mutate(start_posts = factor(start_posts)) %>% 
   ggplot_cus() +
-  aes(x = start_posts, y = ρ,fill = scoring_function) + # , color = vote_count, shape = user_rating_function, fill = init_score) + 
+  aes(x = start_posts, y = ρ,fill = rating_metric) + # , color = vote_count, shape = user_opinion_function, fill = init_score) + 
   labs(x = "Anzahl Startposts", fill = "Bewertungsmetrik") + 
   geom_boxplot() +
   #geom_line(alpha = 0.1) +
   facet_wrap(~relevance_gravity)
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/start_posts_box.png", device = "png")
+  ggsave(here::here("plots","start_posts_box.png"), device = "png")
 }
 ```
 
@@ -738,7 +735,7 @@ rating_dist %>%
 
 if(s)
 {
- ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/rating_dist.png", device = "png")
+ ggsave(here::here("plots","rating_dist.png"), device = "png")
 }
 
 ```
@@ -784,7 +781,7 @@ rating_dist %>%
   
 if(s)
 {
- ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/rating_dist1.png", device = "png")
+ ggsave(here::here("plots","rating_dist1.png"), device = "png")
 }
 ```
 ```{r}
@@ -808,7 +805,7 @@ user_posts %>%
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/meinung1.png", device = "png", height = 4, width = 4)
+  ggsave(here::here("plots","meinung1.png"), device = "png", height = 4, width = 4)
 }
 
 ```
@@ -828,6 +825,6 @@ points %>%
 
 if(s)
 {
-  ggsave("/home/ludwig/Bachelorarbeit/voting-protocols/plots/meinung2.png", device = "png", width = 3)
+  ggsave(here::here("plots","meinung2.png"), device = "png", width = 3)
 }
 ```

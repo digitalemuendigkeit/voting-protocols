@@ -1,0 +1,34 @@
+---
+"analyzing the variation of the gravity"
+---
+
+```{r}
+source("util.r")
+```
+
+```{r}
+df_gravity = combine_dfs_old(here::here("data_BA","data_gravity"),"model") %>% 
+  mutate(quality_dimensions = factor(quality_dimensions)) %>% 
+  filter(user_opinion_function == "Konsens")
+
+
+```
+
+```{r}
+df_gravity %>% 
+  mutate(gravity = factor(gravity)) %>% 
+  ggplot_cus() + 
+  aes(x = area_under_gini, y = area_under_ndcg, posts_with_no_views, color = gravity) + 
+  geom_point(alpha = 0.3) + 
+  facet_grid(rating_metric~relevance_gravity)
+```
+
+
+```{r}
+df_gravity %>% 
+  mutate(gravity = factor(gravity)) %>% 
+  ggplot_cus() + 
+  aes(x = rating_metric, y = area_under_gini,fill = gravity) + 
+  geom_boxplot(alpha = 1) + 
+  facet_grid(~relevance_gravity)
+```

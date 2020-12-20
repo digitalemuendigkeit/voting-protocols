@@ -1,0 +1,80 @@
+
+
+```{r}
+source("util.r")
+```
+
+```{r}
+df_concentration = combine_dfs(here::here("data"),"concentration") %>% 
+  filter(user_opinion_function == "Konsens")
+```
+
+
+
+```{r}
+df_concentration %>% 
+  mutate(init_score = factor(init_score)) %>% 
+  ggplot() +
+  aes(x = area_under_gini, y = area_under_ndcg, color = concentration_distribution, shape= user_opinion_function, group= seed, size = posts_with_no_views) +
+  theme(text=element_text(family="Trebuchet MS")) +
+  geom_point(alpha = 0.4) + 
+  geom_line(alpha = 0.4) +
+  facet_grid(rating_metric~relevance_gravity)
+```
+
+
+```{r}
+df_concentration %>% 
+  mutate(steps = factor(steps)) %>% 
+  ggplot() +
+  aes(fill = rating_metric,y =  area_under_gini) + 
+  theme(text=element_text(family="Trebuchet MS")) +
+  theme(axis.text.x=element_blank(),axis.ticks.x=element_blank(),) +
+  geom_boxplot() + 
+  facet_wrap(~concentration_distribution,ncol = nrow(unique(df_concentration[,"concentration_distribution"])))
+
+```
+
+```{r}
+df_concentration %>% 
+ # filter(steps <= 100) %>% 
+  mutate(steps = factor(steps)) %>% 
+  ggplot() +
+  aes(fill = rating_metric,y =  area_under_ndcg) + 
+  theme(text=element_text(family="Trebuchet MS")) +
+  theme(axis.text.x=element_blank(),axis.ticks.x=element_blank(),) +
+  geom_boxplot() + 
+  facet_wrap(~concentration_distribution,ncol = nrow(unique(df_concentration[,"concentration_distribution"])))
+
+
+```
+
+```{r}
+df_concentration %>% 
+ # filter(steps <= 100) %>% 
+  mutate(steps = factor(steps)) %>% 
+  ggplot() +
+  aes(fill = rating_metric,y =  area_under_gini) + 
+  theme(text=element_text(family="Trebuchet MS")) +
+  theme(axis.text.x=element_blank(),axis.ticks.x=element_blank(),) +
+  geom_boxplot() + 
+  facet_wrap(~concentration_distribution,ncol = nrow(unique(df_concentration[,"concentration_distribution"])))
+
+
+```
+
+
+```{r}
+df_concentration %>% 
+ # filter(steps <= 100) %>% 
+  mutate(steps = factor(steps)) %>% 
+  ggplot() +
+  aes(color = rating_metric,x=area_under_gini,group = seed,y =  area_under_ndcg, shape = user_opinion_function) + 
+  theme(text=element_text(family="Trebuchet MS")) +
+  #theme(axis.text.x=element_blank(),axis.ticks.x=element_blank(),) +
+  geom_point(alpha = 0.5) + 
+  geom_line(alpha = 0.3) + 
+  facet_wrap(~concentration_distribution,ncol = nrow(unique(df_concentration[,"concentration_distribution"])))
+
+
+```
